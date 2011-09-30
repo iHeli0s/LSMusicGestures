@@ -1,0 +1,9 @@
+Package: com.fr0zensun.lsmusicgestures
+Name: LSMusicGestures
+Depends: mobilesubstrate
+Version: 0.0.1
+Architecture: iphoneos-arm
+Description: An awesome MobileSubstrate tweak!
+Maintainer: Fr0zen Sun
+Author: Fr0zen Sun
+Section: Tweaks
