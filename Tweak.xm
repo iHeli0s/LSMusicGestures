@@ -81,3 +81,40 @@ swipeGestureLeft.enabled = YES;
 }
 
 %end
+%hook SBPasscodeField
+- (BOOL)becomeFirstResponder {
+
+swipeGestureRight.enabled = NO;
+swipeGestureLeft.enabled = NO;
+tapGesture.enabled = NO;
+return %orig;
+}
+- (void)textFieldDidResignFirstResponder:(id)arg1 {
+
+swipeGestureRight.enabled = YES;
+swipeGestureLeft.enabled = YES;
+tapGesture.enabled = YES;
+%orig;
+}
+
+
+%end
+%hook SBDeviceLockEntryField
+- (BOOL)becomeFirstResponder {
+
+swipeGestureRight.enabled = NO;
+swipeGestureLeft.enabled = NO;
+tapGesture.enabled = NO;
+return %orig;
+}
+%new(c@:)
+- (BOOL)resignFirstResponder {
+swipeGestureRight.enabled = YES;
+swipeGestureLeft.enabled = YES;
+tapGesture.enabled = YES;
+return YES;
+
+}
+
+
+%end
