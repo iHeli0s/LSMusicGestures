@@ -1,120 +1,37 @@
 #import <UIKit/UIKit.h>
-UISwipeGestureRecognizer *swipeGestureRight;
-UISwipeGestureRecognizer *swipeGestureLeft;
-UITapGestureRecognizer *tapGesture;
-%hook SBAwayView
--(void)finishedAnimatingIn {
-%orig;
-if(swipeGestureLeft)
-[swipeGestureLeft release];
-if(swipeGestureRight)
-[swipeGestureRight release];
-if(tapGesture)
-[tapGesture release];
-tapGesture = nil;
-swipeGestureRight = nil;
-swipeGestureLeft = nil;
-swipeGestureRight = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiped:)];
-swipeGestureLeft = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(swiped:)];
-tapGesture = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapped:)];
-tapGesture.numberOfTapsRequired = 2;
-swipeGestureLeft.direction = UISwipeGestureRecognizerDirectionLeft;
-	//[swipeGesture setDelegate:self];
-	//[swipeGesture canBePreventedByGestureRecognizer:MSHookIvar<UIGestureRecognizer *>(self,"_gestureRecognizer")];
-	[self addGestureRecognizer:swipeGestureRight];
-		[self addGestureRecognizer:swipeGestureLeft];
-		[self addGestureRecognizer:tapGesture];
 
+//tip for you: do a cleaner code next time =P
+
+%hook SBAwayController
+- (void)activate
+{
+	SBAwayView *view = MSHookIvar<SBAwayView *>(self, "_awayView");
+
+	UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(playPause)];
+	tap.numberOfTapsRequired = 2;
+	[tap release];
+
+	UISwipeGestureRecognizer *right = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(next)];
+    	[right setDirection:(UISwipeGestureRecognizerDirectionRight)];
+    	[view addGestureRecognizer:right];
+    	[right release];
+
+	UISwipeGestureRecognizer *left = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(previous)];
+    	[left setDirection:(UISwipeGestureRecognizerDirectionLeft)];
+    	[view addGestureRecognizer:left];
+    	[left release];
 }
-
-
-%new(v@:@)
--(void)swiped:(UISwipeGestureRecognizer *)sender {
-UIView *mediaView = [[%c(SBAwayMediaControlsView) alloc]init];
-if(!CGRectContainsPoint([MSHookIvar<UIView *>(self,"_lockBar") frame], [sender locationInView:self]) && !CGRectContainsPoint([MSHookIvar<UIView *>(self,"_dateView") frame], [sender locationInView:self]) ) {
-if(sender.direction == UISwipeGestureRecognizerDirectionLeft) {
-[mediaView _changeTrackButtonUp:MSHookIvar<UIButton *>(mediaView,"_prevButton")];
+%new(v@:)
+- (void)playPause
+{
+	[[objc_getClass("SBMediaController") sharedInstance] togglePlayPause];
 }
-else {
-[mediaView _changeTrackButtonUp:MSHookIvar<UIButton *>(mediaView,"_nextButton")];
+- (void)next
+{
+	[[objc_getClass("SBMediaController") sharedInstance] changeTrack:1];
 }
-[mediaView release];
-
+- (void)previous
+{
+	[[objc_getClass("SBMediaController") sharedInstance] changeTrack:-1];
 }
-}
-%new(v@:@)
--(void)tapped:(UITapGestureRecognizer *)sender {
-if(!CGRectContainsPoint([MSHookIvar<UIView *>(self,"_lockBar") frame], [sender locationInView:self]) && !CGRectContainsPoint([MSHookIvar<UIView *>(self,"_dateView") frame], [sender locationInView:self]) ) {
-UIView *mediaView = [[%c(SBAwayMediaControlsView) alloc]init];
-
-[mediaView _playPauseButtonAction:MSHookIvar<UIButton *>(mediaView,"_playPauseButton")];
-[mediaView release];
-}
-
-}
-
-
--(void)lockBarStartedTracking:(id)tracking {
-
-swipeGestureRight.enabled = NO;
-swipeGestureLeft.enabled = NO;
-
-%orig;
-}
--(void)lockBarStoppedTracking:(id)tracking {
-
-swipeGestureRight.enabled = YES;
-swipeGestureLeft.enabled = YES;
-
-%orig;
-
-}
-%end
-
-%hook SBAwayMediaControlsView
-- (void)_volumeChange:(id)arg1 {
-swipeGestureRight.enabled = NO;
-swipeGestureLeft.enabled = NO;
-%orig;
-swipeGestureRight.enabled = YES;
-swipeGestureLeft.enabled = YES;
-}
-
-%end
-%hook SBPasscodeField
-- (BOOL)becomeFirstResponder {
-
-swipeGestureRight.enabled = NO;
-swipeGestureLeft.enabled = NO;
-tapGesture.enabled = NO;
-return %orig;
-}
-- (void)textFieldDidResignFirstResponder:(id)arg1 {
-
-swipeGestureRight.enabled = YES;
-swipeGestureLeft.enabled = YES;
-tapGesture.enabled = YES;
-%orig;
-}
-
-
-%end
-%hook SBDeviceLockEntryField
-- (BOOL)becomeFirstResponder {
-
-swipeGestureRight.enabled = NO;
-swipeGestureLeft.enabled = NO;
-tapGesture.enabled = NO;
-return %orig;
-}
-%new(c@:)
-- (BOOL)resignFirstResponder {
-swipeGestureRight.enabled = YES;
-swipeGestureLeft.enabled = YES;
-tapGesture.enabled = YES;
-return YES;
-
-}
-
-
 %end
