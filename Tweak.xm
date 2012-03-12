@@ -11,12 +11,12 @@
 	tap.numberOfTapsRequired = 2;
 	[tap release];
 
-	UISwipeGestureRecognizer *right = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(next)];
+	UISwipeGestureRecognizer *right = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(previous)];
     	[right setDirection:(UISwipeGestureRecognizerDirectionRight)];
     	[view addGestureRecognizer:right];
     	[right release];
 
-	UISwipeGestureRecognizer *left = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(previous)];
+	UISwipeGestureRecognizer *left = [[UISwipeGestureRecognizer alloc] initWithTarget:self action:@selector(next)];
     	[left setDirection:(UISwipeGestureRecognizerDirectionLeft)];
     	[view addGestureRecognizer:left];
     	[left release];
