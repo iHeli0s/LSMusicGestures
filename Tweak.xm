@@ -20,18 +20,34 @@
     	[left setDirection:(UISwipeGestureRecognizerDirectionLeft)];
     	[view addGestureRecognizer:left];
     	[left release];
+	
+	%orig;
 }
 %new(v@:)
 - (void)playPause
 {
-	[[objc_getClass("SBMediaController") sharedInstance] togglePlayPause];
+	[[%c(SBMediaController) sharedInstance] togglePlayPause];
 }
 - (void)next
 {
-	[[objc_getClass("SBMediaController") sharedInstance] changeTrack:1];
+	[[%c(SBMediaController) sharedInstance] changeTrack:1];
 }
 - (void)previous
 {
-	[[objc_getClass("SBMediaController") sharedInstance] changeTrack:-1];
+	[[%c(SBMediaController) sharedInstance] changeTrack:-1];
+}
+%end
+
+%hook SBAwayLockBar
+
+- (void)knobDragged:(float)dragged
+{
+	right.enabled = NO;
+	%orig;
+}
+- (void)upInKnob
+{
+	right.enabled = YES;
+	%orig;
 }
 %end
